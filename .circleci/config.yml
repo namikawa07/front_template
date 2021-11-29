@@ -1,18 +1,31 @@
 version: 2
 jobs:
   build:
+    working_directory: ~/workspace
     docker:
-      - image: node:16
-    working_directory: ~/app
+      - image: node:16-alpine
     steps:
       - checkout
       - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "package.json" }}
-      - run: yarn
+          key: yarn-{{ .Branch }}-{{ checksum "yarn.lock" }}
+      - run:
+          name: Install dependencies
+          command: yarn
+      - run:
+          name: Build
+          command: yarn build
+      - run:
+          name: Check dist
+          command: ls -la dist
       - save_cache:
+          key: yarn-{{ .Branch }}-{{ checksum "yarn.lock" }}
           paths:
-            - node_modules
-          key: v1-dependencies-{{ checksum "package.json" }}
-      - run: yarn test
-      - run: yarn build
+            - ~/workspace/node_modules
+
+workflows:
+  test:
+    jobs:
+      - build:
+          filters:
+            branches:
+              ignore: develop
