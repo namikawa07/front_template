@@ -22,10 +22,3 @@ jobs:
           paths:
             - ~/workspace/node_modules
 
-workflows:
-  test:
-    jobs:
-      - build:
-          filters:
-            branches:
-              ignore: develop
